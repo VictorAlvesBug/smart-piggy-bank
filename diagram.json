@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "author": "Victor Alves",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-membrane-keypad",
+      "id": "keypad",
+      "top": -318.8,
+      "left": 130.4,
+      "attrs": {
+        "keys": [ "1", "2", "3", "A", "4", "5", "6", "B", "7", "8", "9", "C", "<", "0", "✓", "D" ]
+      }
+    },
+    {
+      "type": "wokwi-lcd2004",
+      "id": "lcd",
+      "top": -531.2,
+      "left": 82.4,
+      "attrs": { "pins": "i2c" }
+    },
+    {
+      "type": "board-esp32-c3-rust-1",
+      "id": "mcu",
+      "top": -24.55,
+      "left": 234.86,
+      "rotate": 90,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "lcd:VCC", "mcu:5V", "red", [ "h-38.58", "v662.5", "h249.78" ] ],
+    [ "lcd:GND", "mcu:GND", "black", [ "h-48", "v681.6", "h374.4", "v-144", "h-86.4" ] ],
+    [ "lcd:SDA", "mcu:10", "green", [ "h-28.8", "v643.4", "h153.6" ] ],
+    [ "lcd:SCL", "mcu:8.2", "purple", [ "h-19.2", "v624.3", "h153.6" ] ],
+    [ "mcu:2", "keypad:C4", "white", [ "v0" ] ],
+    [ "mcu:3", "keypad:C3", "gray", [ "v0" ] ],
+    [ "mcu:4", "keypad:C2", "violet", [ "v0" ] ],
+    [ "mcu:5", "keypad:C1", "blue", [ "v0" ] ],
+    [ "mcu:6", "keypad:R4", "green", [ "v0" ] ],
+    [ "mcu:7", "keypad:R3", "gold", [ "v0" ] ],
+    [ "mcu:21", "keypad:R2", "orange", [ "v-19.2", "h10" ] ],
+    [ "mcu:20", "keypad:R1", "#8f4814", [ "v-28.8", "h9.6" ] ]
+  ],
+  "dependencies": {}
+}

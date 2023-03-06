@@ -1,0 +1,12 @@
+# Wokwi Library List
+# See https://docs.wokwi.com/guides/libraries
+
+# Automatically added based on includes:
+Keypad
+LiquidCrystal I2C
+
+# Installed manually
+PubSubClient
+DHT sensor library for ESPx
+WiFi
+Arduino_JSON
