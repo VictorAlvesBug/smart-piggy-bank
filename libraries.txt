@@ -8,5 +8,3 @@ LiquidCrystal I2C
 # Installed manually
 PubSubClient
 DHT sensor library for ESPx
-WiFi
-Arduino_JSON

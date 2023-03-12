@@ -1,19 +1,7 @@
-/*
-  Cenários Testar:
-
-  - Confirmar senha vazia
-  - Digitar senha até limite de 16 caracteres
-  - Confirmar senha errada
-  - Digitar antes de voltar da mensagem de erro
-  - Confirmar senha certa
-  - Digitar valor 210 e verificar se ele mantem dígitos ou muda para 209
-  - Verificar se subgoal decimal avisa quando é atingida
-*/
 
 #include "teclado.h";
 #include "display.h";
 #include "utils-mqtt.h";
-
 
 #define QTDE_MAXIMA_SUB_METAS          5
 
@@ -51,7 +39,10 @@ float valorGuardado = 0;
 long instanteCursorAlternou = 0;
 bool cursorAtivo = true;
 
-String topicoMQTT = "smart_piggy_bank/message";
+String topicoMQTT_MetaAlterada = "smart_piggy_bank/meta_alterada";
+String topicoMQTT_ValorGuardado = "smart_piggy_bank/valor_guardado";
+String topicoMQTT_Mensagem = "smart_piggy_bank/mensagem";
+
 String mensagemPublicarMQTT = "";
 
 void publicarAtualizacaoMetasMQTT() {
@@ -100,7 +91,9 @@ void publicarAtualizacaoMetasMQTT() {
     mensagemPublicarMQTT += F(".");
   }
 
-  publicarNoTopicoMQTT(topicoMQTT, mensagemPublicarMQTT);
+  publicarNoTopicoMQTT(topicoMQTT_MetaAlterada, String(metaBase.valor));
+  publicarNoTopicoMQTT(topicoMQTT_ValorGuardado, String(valorGuardado));
+  publicarNoTopicoMQTT(topicoMQTT_Mensagem, mensagemPublicarMQTT);
 }
 
 void setup() {
@@ -427,7 +420,11 @@ void computarSenhaDigitada(char tecla) {
 }
 
 String retornarMensagemSenha(bool ehNovaSenha) {
-  if (!ehNovaSenha && senhaDigitada != senhaCorreta) {
+  if(senhaDigitada == senhaCorreta){
+    publicarNoTopicoMQTT(topicoMQTT_MetaAlterada, String(metaBase.valor));
+    publicarNoTopicoMQTT(topicoMQTT_ValorGuardado, String(valorGuardado));
+  }
+  else if (!ehNovaSenha) {
     return F("Incorrect password");
   }
 
@@ -787,8 +784,9 @@ void computarValorDepositoDigitado(char tecla) {
       valorGuardado += valorDigitado;
 
       mensagemPublicarMQTT = "You deposited " + aplicarMascaraDinheiro(valorDigitado) + ". Now you have " + aplicarMascaraDinheiro(valorGuardado) + ".";
-      
-      publicarNoTopicoMQTT(topicoMQTT, mensagemPublicarMQTT);
+      publicarNoTopicoMQTT(topicoMQTT_MetaAlterada, String(metaBase.valor));
+      publicarNoTopicoMQTT(topicoMQTT_ValorGuardado, String(valorGuardado));
+      publicarNoTopicoMQTT(topicoMQTT_Mensagem, mensagemPublicarMQTT);
 
       valorDigitado = 0;
       atualizarMetasAtingidas();
@@ -815,7 +813,7 @@ void atualizarMetasAtingidas() {
     telaAtualDisplay = TELA_MENSAGEM;
     mensagemDisplay = "Congratulations: Your main goal (" + aplicarMascaraDinheiro(metaBase.valor) + ") has been reached!";
 
-    publicarNoTopicoMQTT(topicoMQTT, mensagemDisplay);
+    publicarNoTopicoMQTT(topicoMQTT_Mensagem, mensagemDisplay);
   }
   else {
     float maiorSubMetaAtingida = 0;
@@ -839,7 +837,7 @@ void atualizarMetasAtingidas() {
       telaAtualDisplay = TELA_MENSAGEM;
       mensagemDisplay = "Congratulations: Your " + aplicarMascaraDinheiro(maiorSubMetaAtingida) + " subgoal has been reached!";
 
-      publicarNoTopicoMQTT(topicoMQTT, mensagemDisplay);
+      publicarNoTopicoMQTT(topicoMQTT_Mensagem, mensagemDisplay);
     }
   }
 }
@@ -850,10 +848,12 @@ void computarAcaoConfirmarSaqueDinheiro(char tecla) {
       telaRetornarDisplay = TELA_MENU_MEU_DINHEIRO;
       telaAtualDisplay = TELA_MENSAGEM;
       mensagemDisplay = aplicarMascaraDinheiro(valorGuardado) + " withdrawn successfully!";
-
-      publicarNoTopicoMQTT(topicoMQTT, mensagemDisplay);
-
       valorGuardado = 0;
+
+      publicarNoTopicoMQTT(topicoMQTT_MetaAlterada, String(metaBase.valor));
+      publicarNoTopicoMQTT(topicoMQTT_ValorGuardado, String(valorGuardado));
+      publicarNoTopicoMQTT(topicoMQTT_Mensagem, mensagemDisplay);
+
       atualizarMetasAtingidas();
       break;
 
